@@ -64,7 +64,7 @@ endforeach()
 # The final test loads one CSV and makes sure all three plots can be exported.
 add_dataviz_test(test_integration)
 
-// This small executable lets the local browser UI use the C++ library.
+# This small executable lets the local browser UI use the C++ library.
 add_executable(graph_ui_cli ui/graph_ui_cli.cpp)
 target_link_libraries(graph_ui_cli PRIVATE dataviz)
 
