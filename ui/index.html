@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Group 4 · Data Visualizer</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#152437;background:#f3f6fb}
+*{box-sizing:border-box}body{margin:0}header{background:#102540;color:white;padding:24px clamp(16px,4vw,64px)}
+header h1{margin:4px 0;font-size:26px}header p{color:#bacce3;margin:0}
+main{max-width:1350px;margin:24px auto;padding:0 18px;display:grid;grid-template-columns:340px minmax(0,1fr);gap:22px}
+.panel{background:white;border:1px solid #dfe6f0;border-radius:15px;padding:24px;box-shadow:0 4px 16px #1025400c}
+h2{font-size:18px;margin:0 0 20px}label{display:block;font-size:13px;font-weight:650;margin:15px 0 6px}
+input,select,textarea,button{font:inherit}input,select,textarea{width:100%;padding:11px;border:1px solid #cbd5e3;border-radius:9px;background:white}
+input[type=file]{padding:10px;font-size:13px}button{border:0;border-radius:9px;background:#2362cc;color:white;cursor:pointer;padding:13px 16px;font-weight:700;width:100%;margin-top:20px}
+button:disabled{opacity:.5;cursor:wait}button.secondary{background:#e8f0fd;color:#214e96;margin-top:10px}
+.muted{font-size:13px;color:#60718c;line-height:1.6}.status{padding:10px 12px;background:#eff5ff;border-radius:8px;color:#24456d;margin-top:14px;font-size:13px}
+.error{background:#fff0ef;color:#9b2e25}.preview{display:flex;align-items:center;justify-content:center;min-height:440px;background:#f8fafc;border:1px dashed #d0dbe9;border-radius:10px;overflow:auto}
+.preview img{display:block;width:100%;max-width:880px;height:auto}.placeholder{color:#73849b;text-align:center}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px}.toolbar span{font-size:12px;color:#64748b}
+@media(max-width:830px){main{grid-template-columns:1fr}.preview{min-height:280px}}
+</style></head>
+<body><header><small>GROUP 4 · C++ DATA VISUALIZATION LIBRARY</small><h1>Graph Studio</h1><p>Load data, choose a chart, preview it and export an SVG using our C++ modules.</p></header>
+<main><section class="panel">
+<h2>Graph settings</h2>
+<label for="csv">1. CSV dataset</label><input id="csv" type="file" accept=".csv,text/csv" aria-describedby="csvHint">
+<div class="muted" id="csvHint">Choose any small CSV with a header row. The sample data is loaded initially.</div>
+<label for="chart">2. Graph type</label><select id="chart"><option value="histogram">Histogram</option><option value="kde">KDE Plot</option><option value="count">Count Plot</option></select>
+<label for="column">3. Column</label><select id="column"></select>
+<label for="title">4. Graph title</label><input id="title" maxlength="90" value="Student Marks Histogram">
+<label for="bins" id="binsLabel">5. Number of bins</label><input id="bins" type="number" value="5" min="1" max="100">
+<button id="generate">Generate graph</button>
+<div id="status" class="status" role="status">Ready to create a graph.</div>
+<p class="muted">The project uses DataLoader → DataProcessor → plot calculations → Renderer → ImageExporter. Files are saved in <strong>data/output/</strong>.</p>
+</section><section class="panel">
+<div class="toolbar"><h2>Graph preview</h2><span>SVG · scalable vector image</span></div>
+<div class="preview" id="preview"><div class="placeholder">Your graph will appear here.</div></div>
+<button id="download" class="secondary" disabled>Download SVG</button>
+<div class="muted" id="destination" style="margin-top:12px">No image generated yet.</div>
+</section></main>
+<script>
+const sample='Name,Programme,Mark\nAlice,CCE,72\nBrian,EEE,65\nCarol,CCE,81\nDavid,CIV,58\nEve,CCE,90\nFaith,EEE,76\nGeorge,CCE,69\nHope,CIV,84\n';
+let csvText=sample, savedSvg='', savedName='';
+const el=id=>document.getElementById(id);
+function headers(csv){const first=csv.replace(/^\uFEFF/,'').split(/\r?\n/,1)[0];return first.split(',').map(s=>s.trim().replace(/^"|"$/g,''));}
+function updateColumns(){const list=headers(csvText);el('column').replaceChildren();list.forEach((name,i)=>{const option=document.createElement('option');option.value=i;option.textContent=name||'Column '+(i+1);el('column').append(option)});el('column').value=el('chart').value==='count'?Math.min(1,list.length-1):Math.min(2,list.length-1);}
+function updatePlot(){const chart=el('chart').value;el('bins').style.display=chart==='histogram'?'block':'none';el('binsLabel').style.display=chart==='histogram'?'block':'none';el('title').value={histogram:'Student Marks Histogram',kde:'Student Marks KDE Plot',count:'Students by Programme'}[chart];updateColumns();}
+el('csv').addEventListener('change',async()=>{const file=el('csv').files[0];if(!file)return;if(file.size>800000){setStatus('File is too large. Choose a CSV smaller than 800 KB.',true);return;}csvText=await file.text();updateColumns();setStatus('Loaded '+file.name);});
+el('chart').addEventListener('change',updatePlot);
+function setStatus(message,isError=false){el('status').textContent=message;el('status').classList.toggle('error',isError);}
+el('generate').addEventListener('click',async()=>{
+el('generate').disabled=true;setStatus('Generating graph through the C++ library…');
+try{
+const response=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},
+body:JSON.stringify({csv:csvText,chart:el('chart').value,column:Number(el('column').value),title:el('title').value,bins:Number(el('bins').value)})});
+const data=await response.json();if(!response.ok)throw Error(data.error||'Could not generate graph.');
+savedSvg=data.svg;savedName=data.filename;const image=new Image();image.alt='Generated SVG graph';image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(savedSvg);
+el('preview').replaceChildren(image);el('download').disabled=false;el('destination').textContent='Saved: '+data.relativePath;setStatus('Graph generated successfully.');
+}catch(err){setStatus(err.message,true)}finally{el('generate').disabled=false}
+});
+el('download').addEventListener('click',()=>{if(!savedSvg)return;const blob=new Blob([savedSvg],{type:'image/svg+xml'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=savedName;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);});
+updatePlot();
+</script></body></html>
