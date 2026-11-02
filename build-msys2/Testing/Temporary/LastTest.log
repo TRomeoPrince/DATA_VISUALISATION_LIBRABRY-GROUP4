@@ -1,0 +1,195 @@
+Start testing: Nov 02 10:19 E. Africa Standard Time
+----------------------------------------------------------
+1/12 Testing: dataviz_tests
+1/12 Test: dataviz_tests
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/dataviz_tests.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"dataviz_tests" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+All tests passed.
+<end of output>
+Test time =   0.22 sec
+----------------------------------------------------------
+Test Passed.
+"dataviz_tests" end time: Nov 02 10:19 E. Africa Standard Time
+"dataviz_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/12 Testing: test_kdeplot
+2/12 Test: test_kdeplot
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_kdeplot.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_kdeplot" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+KDEPlot tests passed.
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"test_kdeplot" end time: Nov 02 10:19 E. Africa Standard Time
+"test_kdeplot" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/12 Testing: test_axis
+3/12 Test: test_axis
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_axis.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_axis" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+Axis tests passed.
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"test_axis" end time: Nov 02 10:19 E. Africa Standard Time
+"test_axis" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/12 Testing: test_statistics
+4/12 Test: test_statistics
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_statistics.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_statistics" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+Statistics tests passed.
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"test_statistics" end time: Nov 02 10:19 E. Africa Standard Time
+"test_statistics" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/12 Testing: test_components
+5/12 Test: test_components
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_components.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_components" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+Component integration tests passed.
+<end of output>
+Test time =   0.32 sec
+----------------------------------------------------------
+Test Passed.
+"test_components" end time: Nov 02 10:19 E. Africa Standard Time
+"test_components" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/12 Testing: test_dataloader
+6/12 Test: test_dataloader
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_dataloader.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_dataloader" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+DataLoader tests passed.
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"test_dataloader" end time: Nov 02 10:19 E. Africa Standard Time
+"test_dataloader" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/12 Testing: test_dataprocessor
+7/12 Test: test_dataprocessor
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_dataprocessor.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_dataprocessor" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+DataProcessor tests passed.
+<end of output>
+Test time =   0.17 sec
+----------------------------------------------------------
+Test Passed.
+"test_dataprocessor" end time: Nov 02 10:19 E. Africa Standard Time
+"test_dataprocessor" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/12 Testing: test_countplot
+8/12 Test: test_countplot
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_countplot.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_countplot" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+CountPlot tests passed.
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"test_countplot" end time: Nov 02 10:19 E. Africa Standard Time
+"test_countplot" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/12 Testing: test_histogram
+9/12 Test: test_histogram
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_histogram.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_histogram" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+Histogram tests passed.
+<end of output>
+Test time =   0.13 sec
+----------------------------------------------------------
+Test Passed.
+"test_histogram" end time: Nov 02 10:19 E. Africa Standard Time
+"test_histogram" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/12 Testing: test_annotation
+10/12 Test: test_annotation
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_annotation.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_annotation" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+Annotation tests passed.
+<end of output>
+Test time =   0.14 sec
+----------------------------------------------------------
+Test Passed.
+"test_annotation" end time: Nov 02 10:19 E. Africa Standard Time
+"test_annotation" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/12 Testing: test_renderer
+11/12 Test: test_renderer
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_renderer.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_renderer" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+Renderer tests passed.
+<end of output>
+Test time =   0.28 sec
+----------------------------------------------------------
+Test Passed.
+"test_renderer" end time: Nov 02 10:19 E. Africa Standard Time
+"test_renderer" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/12 Testing: test_imageexporter
+12/12 Test: test_imageexporter
+Command: "C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2/test_imageexporter.exe"
+Directory: C:/Users/USER/Desktop/OOP/Draft-Group4/build-msys2
+"test_imageexporter" start time: Nov 02 10:19 E. Africa Standard Time
+Output:
+----------------------------------------------------------
+ImageExporter tests passed.
+<end of output>
+Test time =   0.15 sec
+----------------------------------------------------------
+Test Passed.
+"test_imageexporter" end time: Nov 02 10:19 E. Africa Standard Time
+"test_imageexporter" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Nov 02 10:19 E. Africa Standard Time
