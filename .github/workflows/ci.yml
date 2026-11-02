@@ -28,3 +28,8 @@ jobs:
           test -s ../data/output/complete_histogram.svg
           test -s ../data/output/complete_kdeplot.svg
           test -s ../data/output/complete_countplot.svg
+      - name: Check graph UI server syntax
+        run: python3 -m py_compile ui/server.py
+      - name: Verify the UI bridge writes an SVG
+        working-directory: build
+        run: test -s ../data/output/ui_smoke.svg
