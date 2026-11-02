@@ -6,3 +6,7 @@ build/
 *.obj
 *.svg
 !data/output/README.md
+
+# CSV selected from the UI is a temporary local working file.
+data/input/ui_uploaded.csv
+__pycache__/

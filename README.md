@@ -312,3 +312,47 @@ runtime dependencies of this C++ implementation.
 The official repository's `reports/` folder contains the group's progress
 reports and module assignments. Each member should keep their own report
 consistent with the code they have actually implemented and tested.
+
+## 13. Graph Studio — local user interface
+
+A browser-based interface is available in `ui/`. This is a **local** tool
+using Python 3's standard-library web server and our existing C++17 library.
+No Qt or third-party Python packages are required.
+
+First, build the project from the repository root:
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build
+ctest --test-dir build --output-on-failure
+```
+
+Then start the interface:
+
+```bash
+python ui/server.py
+```
+
+Open **http://127.0.0.1:8765/** in your browser.
+
+- Start with the built-in student dataset or choose a CSV file with a header.
+- Select **Histogram**, **KDE Plot**, or **Count Plot**.
+- Choose the CSV column and edit the graph title; set bin count for histograms.
+- Click **Generate graph** to call the C++ plotting library.
+- Preview the SVG, download it, or find the saved file in `data/output/`.
+
+The web server listens **only on 127.0.0.1 (your computer)**. It is a
+development/class-project interface, not a public deployment server. CSV data
+selected in the browser is written to `data/input/ui_uploaded.csv` for the
+C++ loader and is overwritten on the next generation. Use non-sensitive data.
+
+The UI program is `graph_ui_cli`, compiled by CMake. On Visual Studio's
+multi-configuration builds the executable may be inside `build/Debug/`.
+
+### Current limitations
+
+- CSV parsing follows the project's simple DataLoader: quoted commas and
+  multiline quoted fields are not fully supported.
+- Axis labels are still determined by the existing Renderer, not editable in UI.
+- The local server handles one generation request at a time; it is intended
+  for classroom demonstrations on one machine.
