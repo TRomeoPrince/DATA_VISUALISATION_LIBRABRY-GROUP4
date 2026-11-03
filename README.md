@@ -313,46 +313,66 @@ The official repository's `reports/` folder contains the group's progress
 reports and module assignments. Each member should keep their own report
 consistent with the code they have actually implemented and tested.
 
-## 13. Graph Studio — local user interface
+## 13. Graph Studio — native C++ desktop interface (Windows)
 
-A browser-based interface is available in `ui/`. This is a **local** tool
-using Python 3's standard-library web server and our existing C++17 library.
-No Qt or third-party Python packages are required.
+Graph Studio is a **Windows desktop program written entirely in C++17**.
+It uses the built-in Windows API (Win32) for its window and controls, and GDI
+for an interactive chart preview. Its graph calculations and SVG export call
+our existing C++ classes. There is **no Python, HTML, CSS, JavaScript, web
+server, Qt or other third-party GUI requirement**.
 
-First, build the project from the repository root:
+### Build the application
 
-```bash
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-ctest --test-dir build --output-on-failure
+On Windows with a C++17 toolchain (including MSYS2 UCRT64/GCC or MSVC):
+
+```powershell
+cmake -S . -B build
+cmake --build build --config Debug
+ctest --test-dir build -C Debug --output-on-failure
 ```
 
-Then start the interface:
+Then run the desktop UI. When using Ninja with MSYS2, the executable is
+usually at `build/graph_studio.exe`:
 
-```bash
-python ui/server.py
+```powershell
+.\build\graph_studio.exe
 ```
 
-Open **http://127.0.0.1:8765/** in your browser.
+For a Visual Studio generator, use:
 
-- Start with the built-in student dataset or choose a CSV file with a header.
-- Select **Histogram**, **KDE Plot**, or **Count Plot**.
-- Choose the CSV column and edit the graph title; set bin count for histograms.
-- Click **Generate graph** to call the C++ plotting library.
-- Preview the SVG, download it, or find the saved file in `data/output/`.
+```powershell
+.\build\Debug\graph_studio.exe
+```
 
-The web server listens **only on 127.0.0.1 (your computer)**. It is a
-development/class-project interface, not a public deployment server. CSV data
-selected in the browser is written to `data/input/ui_uploaded.csv` for the
-C++ loader and is overwritten on the next generation. Use non-sensitive data.
+If Windows reports a missing DLL when using MSYS2, launch VS Code from an
+MSYS2 UCRT64 terminal or make sure `C:\msys64\ucrt64\bin` is in your PATH.
 
-The UI program is `graph_ui_cli`, compiled by CMake. On Visual Studio's
-multi-configuration builds the executable may be inside `build/Debug/`.
+### Using Graph Studio
 
-### Current limitations
+1. The provided `data/input/sample.csv` loads by default. Click
+   **Browse CSV** to select another local CSV file.
+2. Select **Histogram**, **KDE Plot**, or **Count Plot**.
+3. Choose a CSV column, enter a title, and (for histograms) set the bin count.
+4. Click **Generate SVG Graph** to draw a native C++ chart preview and export
+   the actual graph through the library.
+5. Use **Open Saved SVG** or **Open data/output Folder** to view the output.
 
-- CSV parsing follows the project's simple DataLoader: quoted commas and
-  multiline quoted fields are not fully supported.
-- Axis labels are still determined by the existing Renderer, not editable in UI.
-- The local server handles one generation request at a time; it is intended
-  for classroom demonstrations on one machine.
+Files are created in the project directory:
+
+```text
+data/output/
+  ui_histogram.svg
+  ui_kdeplot.svg
+  ui_countplot.svg
+```
+
+Graph Studio's preview uses native Windows GDI; the saved SVG uses the
+project's Renderer and ImageExporter. Both use the same calculated plot data.
+The UI also passes the selected CSV column name to the Renderer as the
+horizontal-axis label.
+
+**Scope:** The desktop UI is Windows-only, but the underlying C++ library,
+command-line examples, and individual/integration tests remain portable.
+The existing CSV loader is intentionally simple and does not fully support
+quoted commas or multiline CSV fields. Windows CI checks that Graph Studio
+compiles; graphical interaction must also be tested manually on Windows.

@@ -18,7 +18,9 @@ public:
         int width = 800,
         int height = 500,
         const std::string& title = "Count Plot",
-        const Annotation& annotations = Annotation()
+        const Annotation& annotations = Annotation(),
+        const std::string& xLabel = "Programme",
+        const std::string& yLabel = "Frequency"
     );
 
     static std::string renderHistogram(
@@ -26,7 +28,9 @@ public:
         int width = 800,
         int height = 500,
         const std::string& title = "Histogram",
-        const Annotation& annotations = Annotation()
+        const Annotation& annotations = Annotation(),
+        const std::string& xLabel = "Marks",
+        const std::string& yLabel = "Frequency"
     );
 
     static std::string renderKDE(
@@ -34,7 +38,9 @@ public:
         int width = 800,
         int height = 500,
         const std::string& title = "KDE Plot",
-        const Annotation& annotations = Annotation()
+        const Annotation& annotations = Annotation(),
+        const std::string& xLabel = "Marks",
+        const std::string& yLabel = "Density"
     );
 
 private:

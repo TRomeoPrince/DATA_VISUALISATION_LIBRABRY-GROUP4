@@ -75,7 +75,9 @@ std::string Renderer::renderCountPlot(
     int width,
     int height,
     const std::string& title,
-    const Annotation& annotations
+    const Annotation& annotations,
+    const std::string& xLabel,
+    const std::string& yLabel
 ) {
     if (counts.empty()) {
         throw std::invalid_argument("Cannot render an empty count plot.");
@@ -156,7 +158,7 @@ std::string Renderer::renderCountPlot(
             << escapeXML(note.text) << "</text>\n";
     }
 
-    svg << axisLabels(width, height, "Programme", "Frequency");
+    svg << axisLabels(width, height, escapeXML(xLabel), escapeXML(yLabel));
     svg << svgEnd();
     return svg.str();
 }
@@ -166,7 +168,9 @@ std::string Renderer::renderHistogram(
     int width,
     int height,
     const std::string& title,
-    const Annotation& annotations
+    const Annotation& annotations,
+    const std::string& xLabel,
+    const std::string& yLabel
 ) {
     if (bins.empty()) {
         throw std::invalid_argument("Cannot render an empty histogram.");
@@ -235,7 +239,7 @@ std::string Renderer::renderHistogram(
             << escapeXML(note.text) << "</text>\n";
     }
 
-    svg << axisLabels(width, height, "Marks", "Frequency");
+    svg << axisLabels(width, height, escapeXML(xLabel), escapeXML(yLabel));
     svg << svgEnd();
     return svg.str();
 }
@@ -245,7 +249,9 @@ std::string Renderer::renderKDE(
     int width,
     int height,
     const std::string& title,
-    const Annotation& annotations
+    const Annotation& annotations,
+    const std::string& xLabel,
+    const std::string& yLabel
 ) {
     if (points.size() < 2) {
         throw std::invalid_argument("KDE rendering needs at least two points.");
@@ -326,7 +332,7 @@ std::string Renderer::renderKDE(
             << escapeXML(note.text) << "</text>\n";
     }
 
-    svg << axisLabels(width, height, "Marks", "Density");
+    svg << axisLabels(width, height, escapeXML(xLabel), escapeXML(yLabel));
     svg << svgEnd();
     return svg.str();
 }

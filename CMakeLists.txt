@@ -64,13 +64,12 @@ endforeach()
 # The final test loads one CSV and makes sure all three plots can be exported.
 add_dataviz_test(test_integration)
 
-# This small executable lets the local browser UI use the C++ library.
-add_executable(graph_ui_cli ui/graph_ui_cli.cpp)
-target_link_libraries(graph_ui_cli PRIVATE dataviz)
-
-add_test(
-    NAME test_graph_ui_cli
-    COMMAND graph_ui_cli
-        "${CMAKE_CURRENT_BINARY_DIR}/data/input/sample.csv"
-        histogram 2 "UI smoke test" 5 ui_smoke.svg 880
-)
+# Graph Studio is a native C++ Win32 program. The core library remains
+# cross-platform; only the desktop UI requires Windows system libraries.
+if(WIN32)
+    add_executable(graph_studio WIN32 ui/graph_studio_win32.cpp)
+    target_link_libraries(graph_studio PRIVATE dataviz user32 gdi32 comdlg32 shell32)
+    target_compile_definitions(graph_studio PRIVATE
+        DATAVIZ_SAMPLE_CSV_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data/input/sample.csv"
+    )
+endif()
