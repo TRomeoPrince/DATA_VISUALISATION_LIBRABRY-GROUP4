@@ -2,6 +2,7 @@
 // Native Windows user interface written in C++17 using the Win32 API.
 // The calculation and SVG export still use our existing library modules.
 #define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
 #include <windows.h>
 #include <commdlg.h>
 #include <shellapi.h>
