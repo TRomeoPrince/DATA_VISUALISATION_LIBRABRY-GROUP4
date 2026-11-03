@@ -28,8 +28,21 @@ jobs:
           test -s ../data/output/complete_histogram.svg
           test -s ../data/output/complete_kdeplot.svg
           test -s ../data/output/complete_countplot.svg
-      - name: Check graph UI server syntax
-        run: python3 -m py_compile ui/server.py
-      - name: Verify the UI bridge writes an SVG
-        working-directory: build
-        run: test -s ../data/output/ui_smoke.svg
+
+  windows-native-ui:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure the C++ Windows desktop application
+        run: cmake -S . -B build
+      - name: Build the library and native Graph Studio
+        run: cmake --build build --config Debug --parallel
+      - name: Run library tests
+        run: ctest --test-dir build -C Debug --output-on-failure
+      - name: Check that the C++ desktop UI was built
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "build/Debug/graph_studio.exe") -and
+              -not (Test-Path "build/graph_studio.exe")) {
+            throw "The Windows C++ Graph Studio executable was not built."
+          }
