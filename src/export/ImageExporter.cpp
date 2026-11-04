@@ -75,7 +75,7 @@ struct GdiSession {
     }
     ~GdiSession(){if(token)Gdiplus::GdiplusShutdown(token);}
 };
-Gdiplus::CLSID codecFor(const wchar_t* mime){
+CLSID codecFor(const wchar_t* mime){
     UINT count=0,bytes=0;
     if(Gdiplus::GetImageEncodersSize(&count,&bytes)!=Gdiplus::Ok||!bytes)
         throw std::runtime_error("No image encoders available.");
