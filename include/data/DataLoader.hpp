@@ -13,6 +13,8 @@ public:
     using Table = std::vector<Row>;
 
     static Table loadCSV(const std::string& filePath, char delimiter = ',');
+    static Table loadJSON(const std::string& filePath);
+    static Table loadBinary(const std::string& filePath);
 };
 
 #endif
