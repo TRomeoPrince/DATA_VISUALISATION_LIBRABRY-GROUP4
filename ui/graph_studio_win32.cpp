@@ -261,14 +261,35 @@ void generate(){
             for(const auto& p:c.kde){c.x.push_back(p.x);c.y.push_back(p.density);}
         }else c.box=BoxPlot::calculate(nums);
     }else if(kind==2||kind==8){
-        auto counts=CountPlot::calculate(columnText(cx));
-        if(counts.empty())throw std::runtime_error("No categories found.");
+        // Count plots count rows; pie charts use the selected numeric Y values
+        // where available (e.g. Month versus Sales), otherwise category counts.
         std::vector<std::pair<std::string,double>> pairs;
-        for(const auto& item:counts){
-            c.labels.push_back(item.first);
+        std::map<std::string,std::size_t> lookup;
+        const bool weighted = kind==8 && cy!=cx && numericColumn(cy);
+        for(std::size_t row=1;row<s.rows.size();++row){
+            if(static_cast<std::size_t>(cx)>=s.rows[row].size())continue;
+            const std::string label=DataProcessor::trim(s.rows[row][cx]);
+            if(label.empty())continue;
+            double value=1.0;
+            if(weighted){
+                if(static_cast<std::size_t>(cy)>=s.rows[row].size() ||
+                   !parse(s.rows[row][cy],value))continue;
+                if(value<0)throw std::runtime_error("Pie chart cannot use negative values.");
+                stats.push_back(value);
+            }
+            auto found=lookup.find(label);
+            if(found==lookup.end()){
+                lookup[label]=pairs.size();
+                pairs.push_back({label,value});
+            }else{
+                pairs[found->second].second+=value;
+            }
+        }
+        if(pairs.empty())throw std::runtime_error("No usable categories found.");
+        for(const auto& entry:pairs){
+            c.labels.push_back(entry.first);
             c.x.push_back(static_cast<double>(c.x.size()));
-            c.y.push_back(static_cast<double>(item.second));
-            pairs.push_back({item.first,static_cast<double>(item.second)});
+            c.y.push_back(entry.second);
         }
         if(kind==8)c.pie=PieChart::build(pairs);
     }else if(kind==7){
@@ -352,6 +373,13 @@ void statsDialog(){
        <<"Q1: "<<fmt(Statistics::firstQuartile(v),4)<<"\r\n"
        <<"Q3: "<<fmt(Statistics::thirdQuartile(v),4)<<"\r\n"
        <<"IQR: "<<fmt(Statistics::interquartileRange(v),4);
+    const auto modes=Statistics::mode(v);
+    out<<"\r\nMode: ";
+    if(modes.empty())out<<"No repeated value";
+    else for(std::size_t i=0;i<modes.size();++i){
+        if(i)out<<", ";
+        out<<fmt(modes[i],4);
+    }
     MessageBoxA(s.window,out.str().c_str(),"Statistics",MB_OK|MB_ICONINFORMATION);
 }
 void textAt(HDC dc,int x,int y,const std::string& v){
@@ -414,7 +442,9 @@ void draw(HDC dc){
             std::size_t n=s.chart.y.size();
             std::size_t step=std::max<std::size_t>(1,(n+11)/12);
             for(std::size_t i=0;i<n;i+=step){
-                int x=left+static_cast<int>((i+0.5)*(right-left)/n);
+                // Line plot labels sit directly below their corresponding points.
+                int x=kind==4?px(s.chart.x[i]):
+                    left+static_cast<int>((i+0.5)*(right-left)/n);
                 SetTextAlign(dc,TA_CENTER);
                 textAt(dc,x,bottom+8,s.chart.labels[i]);
                 SetTextAlign(dc,TA_LEFT);
