@@ -31,18 +31,61 @@ jobs:
 
   windows-native-ui:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Configure the C++ Windows desktop application
-        run: cmake -S . -B build
-      - name: Build the library and native Graph Studio
-        run: cmake --build build --config Debug --parallel
-      - name: Run library tests
-        run: ctest --test-dir build -C Debug --output-on-failure
-      - name: Check that the C++ desktop UI was built
+      - name: Configure portable Windows C++ application
+        run: cmake -S . -B build -DDATAVIZ_PORTABLE_UI=ON
+      - name: Compile release executable and library
+        run: cmake --build build --config Release --parallel
+      - name: Run all library tests
+        run: ctest --test-dir build -C Release --output-on-failure
+      - name: Package downloadable Windows ZIP and check portability
         shell: pwsh
         run: |
-          if (-not (Test-Path "build/Debug/graph_studio.exe") -and
-              -not (Test-Path "build/graph_studio.exe")) {
-            throw "The Windows C++ Graph Studio executable was not built."
-          }
+          $exe = @("build/Release/GraphStudio.exe", "build/GraphStudio.exe") |
+            Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $exe) { throw "GraphStudio.exe was not built." }
+
+          $package = "dist/GraphStudio"
+          New-Item -ItemType Directory -Force "$package/data/input" | Out-Null
+          New-Item -ItemType Directory -Force "$package/data/output" | Out-Null
+          Copy-Item $exe "$package/GraphStudio.exe"
+          Copy-Item "data/input/*.csv" "$package/data/input/"
+          Set-Content "$package/START_HERE.txt" -Encoding UTF8 -Value @(
+            "Group 4 Graph Studio - Windows x64"
+            ""
+            "1. Extract the ZIP into a normal folder such as Downloads or Documents."
+            "2. Double-click GraphStudio.exe to open the native C++ GUI."
+            "3. Pick a CSV, choose the graph, then click Generate SVG Graph."
+            "4. Graph files are saved next to the EXE in data/output/."
+            ""
+            "Windows may ask you to confirm a downloaded unsigned app."
+            "Only run files you trust. No Python or terminal is required."
+          )
+          Compress-Archive -Path "dist/GraphStudio" -DestinationPath "dist/GraphStudio-Windows-x64.zip" -Force
+
+          # An automated, headless check of the EXTRACTED executable.
+          # Running from another working directory catches hard-coded paths.
+          $unpacked = Join-Path $env:RUNNER_TEMP "group4-portability-check"
+          Expand-Archive "dist/GraphStudio-Windows-x64.zip" $unpacked -Force
+          $portableExe = Join-Path $unpacked "GraphStudio/GraphStudio.exe"
+          $process = Start-Process -FilePath $portableExe -ArgumentList "--self-test" -Wait -PassThru -WorkingDirectory $env:RUNNER_TEMP
+          if ($process.ExitCode -ne 0) { throw "Portable Graph Studio self-test failed (exit $($process.ExitCode))." }
+          $svgPath = Join-Path $unpacked "GraphStudio/data/output/portable_smoke.svg"
+          if (-not (Test-Path $svgPath)) { throw "The portable application did not generate an SVG." }
+          if ((Get-Item $svgPath).Length -eq 0) { throw "Generated SVG is empty." }
+      - name: Attach portable Graph Studio ZIP to workflow run
+        uses: actions/upload-artifact@v4
+        with:
+          name: GraphStudio-Windows-x64
+          path: dist/GraphStudio-Windows-x64.zip
+          if-no-files-found: error
+      - name: Publish downloadable GitHub Release for version tags
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$env:GITHUB_REF_NAME" "dist/GraphStudio-Windows-x64.zip" --title "Group 4 Graph Studio $env:GITHUB_REF_NAME" --generate-notes

@@ -1,5 +1,13 @@
 # C++ Data Visualization Library — Group 4
 
+**Windows users — no programming tools needed:** Download the packaged
+**GraphStudio-Windows-x64.zip** from the [Releases page](https://github.com/TRomeoPrince/DATA_VISUALISATION_LIBRABRY-GROUP4/releases),
+extract the ZIP, and double-click `GraphStudio.exe`. Graph Studio is built
+entirely in C++ and works without a Python server. See [Windows executable and
+build guide](BUILD_WINDOWS.md). Release packages are published when a version
+(`v*`) tag is pushed; before that, CI artifacts are available from successful
+Windows GitHub Actions runs (GitHub sign-in may be required).
+
 A reusable **C++17 data visualization library** that loads and prepares data,
 calculates statistics, and creates **Count Plots, Histograms, and KDE Plots**.
 The graphs are rendered as SVG images, without an external graphics library.
@@ -321,7 +329,20 @@ for an interactive chart preview. Its graph calculations and SVG export call
 our existing C++ classes. There is **no Python, HTML, CSS, JavaScript, web
 server, Qt or other third-party GUI requirement**.
 
-### Build the application
+### Run a ready-made executable (no terminal)
+
+Go to [Releases](https://github.com/TRomeoPrince/DATA_VISUALISATION_LIBRABRY-GROUP4/releases)
+and download `GraphStudio-Windows-x64.zip`. Extract the entire archive to a
+writable folder (for example `Documents/GraphStudio`), then double-click
+`GraphStudio.exe`. Keep `data/input` next to the EXE. The app loads the
+bundled CSV by default, and exports SVG graphs to the extracted package's
+`data/output` folder. You do not need to install CMake, MSYS2 or Python.
+
+If there is no published release yet, use the latest successful Windows CI run
+and download the artifact ZIP, or build from source following
+[BUILD_WINDOWS.md](BUILD_WINDOWS.md).
+
+### Build the application from source
 
 On Windows with a C++17 toolchain (including MSYS2 UCRT64/GCC or MSVC):
 
@@ -357,7 +378,8 @@ MSYS2 UCRT64 terminal or make sure `C:\msys64\ucrt64\bin` is in your PATH.
    the actual graph through the library.
 5. Use **Open Saved SVG** or **Open data/output Folder** to view the output.
 
-Files are created in the project directory:
+For developer builds, files are created in the project directory. For the
+portable ZIP, files are created under the extracted `GraphStudio/data/output`:
 
 ```text
 data/output/
@@ -374,5 +396,8 @@ horizontal-axis label.
 **Scope:** The desktop UI is Windows-only, but the underlying C++ library,
 command-line examples, and individual/integration tests remain portable.
 The existing CSV loader is intentionally simple and does not fully support
-quoted commas or multiline CSV fields. Windows CI checks that Graph Studio
-compiles; graphical interaction must also be tested manually on Windows.
+quoted commas or multiline CSV fields. Windows CI builds a Release executable,
+runs the library tests and checks that the extracted ZIP can load a bundled CSV
+and export an SVG without a GUI. Graphical interaction still requires manual
+visual testing on Windows. A downloaded unsigned application may trigger a
+Windows security prompt.
