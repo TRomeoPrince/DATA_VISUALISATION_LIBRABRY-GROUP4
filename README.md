@@ -8,7 +8,8 @@ A C++17 visualization library and native Windows Graph Studio app.
 Scatter Plot, Box Plot, Heatmap and Pie Chart.
 
 **Data and statistics:** CSV parsing (including quoted commas and multiline
-cells), cleaning, paired numerical columns, mean, median, mode, quartiles,
+cells), flat JSON table imports, DVL1 binary table import/export, cleaning,
+paired numerical columns, mean, median, mode, quartiles,
 interquartile range, variance, standard deviation and Tukey box-plot outliers.
 
 **Visualization:** automatically suggested chart headings, editable titles,
@@ -68,3 +69,17 @@ The existing three plot types, tests and four examples remain available.
 The nine plot algorithms are separate from rendering and file export.
 
 This Draft repository is separate from the official Group 4 repository.
+
+
+### Additional data formats
+
+The library can import CSV, flat JSON object arrays (e.g.
+`[{"Month":"Jan","Sales":120}]`), and JSON table arrays
+(e.g. `[["Month","Sales"],["Jan",120]]`). Nested JSON values are intentionally
+rejected to prevent ambiguous matrix columns.
+
+Binary datasets use the documented **DVL1** format: four-byte `DVL1` magic,
+a little-endian unsigned 32-bit row count, then for each row a little-endian
+column count, and for each cell its little-endian byte length followed by its
+UTF-8 bytes. Use `DataLoader::saveBinary` and `DataLoader::loadBinary`.
+Graph Studio's graphical file picker currently focuses on CSV.
