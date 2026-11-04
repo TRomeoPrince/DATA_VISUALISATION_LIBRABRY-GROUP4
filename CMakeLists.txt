@@ -7,6 +7,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# A release ZIP includes an EXE that can run without installing a compiler.
+# MSVC's static CRT avoids requiring a separately installed VC++ redistributable.
+option(DATAVIZ_PORTABLE_UI "Build a relocatable Windows Graph Studio" OFF)
+if(MSVC AND DATAVIZ_PORTABLE_UI)
+    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+endif()
+
 add_library(dataviz
     src/DataLoader.cpp
     src/DataProcessor.cpp
@@ -69,7 +76,12 @@ add_dataviz_test(test_integration)
 if(WIN32)
     add_executable(graph_studio WIN32 ui/graph_studio_win32.cpp)
     target_link_libraries(graph_studio PRIVATE dataviz user32 gdi32 comdlg32 shell32)
-    target_compile_definitions(graph_studio PRIVATE
-        DATAVIZ_SAMPLE_CSV_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data/input/sample.csv"
-    )
+    if(DATAVIZ_PORTABLE_UI)
+        target_compile_definitions(graph_studio PRIVATE DATAVIZ_PORTABLE_UI=1)
+        set_target_properties(graph_studio PROPERTIES OUTPUT_NAME GraphStudio)
+    else()
+        target_compile_definitions(graph_studio PRIVATE
+            DATAVIZ_SAMPLE_CSV_PATH="${CMAKE_CURRENT_SOURCE_DIR}/data/input/sample.csv"
+        )
+    endif()
 endif()
