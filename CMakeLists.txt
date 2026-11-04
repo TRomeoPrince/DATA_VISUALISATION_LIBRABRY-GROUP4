@@ -39,6 +39,9 @@ target_include_directories(dataviz PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include/rendering
     ${CMAKE_CURRENT_SOURCE_DIR}/include/export
 )
+if(WIN32)
+    target_link_libraries(dataviz PUBLIC gdiplus)
+endif()
 target_compile_definitions(dataviz PRIVATE
     DATAVIZ_DEFAULT_OUTPUT_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data/output"
 )
@@ -70,6 +73,7 @@ add_dataviz_test(test_integration)
 add_dataviz_test(test_extended_plots)
 add_dataviz_test(test_csv_quotes)
 add_dataviz_test(test_complete_graphs)
+add_dataviz_test(test_raster_export)
 if(WIN32)
     add_executable(graph_studio WIN32 ui/graph_studio_win32.cpp)
     target_link_libraries(graph_studio PRIVATE dataviz user32 gdi32 comdlg32 shell32)
