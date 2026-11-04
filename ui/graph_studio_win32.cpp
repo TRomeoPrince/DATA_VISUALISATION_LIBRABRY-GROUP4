@@ -402,7 +402,7 @@ void draw(HDC dc){
     // Match SVG's 900 x 560 logical canvas coordinates.
     SetMapMode(dc,MM_ANISOTROPIC);
     SetWindowExtEx(dc,CW,CH,nullptr);
-    SetViewportExtEx(dc,std::max(1,r.right),std::max(1,r.bottom),nullptr);
+    SetViewportExtEx(dc,std::max(1,static_cast<int>(r.right)),std::max(1,static_cast<int>(r.bottom)),nullptr);
     SetBkMode(dc,TRANSPARENT);
     SetTextColor(dc,RGB(35,48,68));
     SetTextAlign(dc,TA_CENTER);

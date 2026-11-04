@@ -1,104 +1,48 @@
-# Windows Graph Studio: download, run and build
+# Windows Graph Studio — build and run
 
-The user interface is **native C++17 (Win32 + GDI)**. It does not need Python,
-HTML, JavaScript, Qt, a web browser, or an internet connection to generate graphs.
+## Get an executable
 
-## Option A: Run without coding or using the terminal
+Open the [GitHub Actions page](https://github.com/TRomeoPrince/DATA_VISUALISATION_LIBRABRY-GROUP4/actions).
+Choose a successful C++ Build, Tests and Graph Examples workflow run,
+download the **GraphStudio-Windows-x64** artifact and extract its ZIP.
 
-1. On Windows 10/11 (x64), open the [GitHub Releases page](https://github.com/TRomeoPrince/DATA_VISUALISATION_LIBRABRY-GROUP4/releases).
-2. Download the **GraphStudio-Windows-x64.zip** attachment for the latest version.
-3. Extract the **entire** ZIP into a writable folder such as
-   `Documents\GraphStudio`. Do not double-click the EXE while it is still inside
-   the ZIP.
-4. Open the extracted `GraphStudio` directory and double-click
-   **GraphStudio.exe**. You do not need to install a compiler, CMake, or Python.
-5. The application opens the packaged sample CSV. You can choose your own CSV
-   using **Browse CSV**, select Histogram / KDE / Count Plot, pick a column and
-   click **Generate SVG Graph**. Use **Open Saved SVG** to see the result.
+Double-click GraphStudio.exe in the extracted GraphStudio folder, with
+data/input beside it. Graph SVGs are saved into data/output next to the EXE.
+The unsigned app may prompt a Windows SmartScreen warning.
 
-The downloaded folder should look like:
+## Build from source
 
-```text
-GraphStudio/
-├── GraphStudio.exe
-├── START_HERE.txt
-└── data/
-    ├── input/
-    │   ├── sample.csv
-    │   ├── student_marks.csv
-    │   ├── subject_marks.csv
-    │   ├── subject_preferences.csv
-    │   └── monthly_sales.csv
-    └── output/                 (SVG images appear after generating)
-```
+Requires Visual Studio with Desktop development with C++, or MSYS2 UCRT64
+with a C++17 compiler.
 
-The packaged application determines file locations relative to
-`GraphStudio.exe`, **not** from a GitHub Actions runner's absolute build path.
-The GUI sends SVG files to `data/output/` next to the executable. To keep your
-generated graphs, back up that folder before replacing an old release.
+    cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DDATAVIZ_PORTABLE_UI=ON
+    cmake --build build --config Release
+    ctest --test-dir build -C Release --output-on-failure
+    .\build\Release\GraphStudio.exe
 
-The app currently offers Histogram, KDE Plot and Count Plot. A marks-by-subject
-bar chart is a separately planned chart type and is not included yet.
+For MSYS2 UCRT64/Ninja:
 
-This application is currently Windows x64 only. It is not digitally signed, so
-Windows SmartScreen may display a warning. Only run a file you trust and verify
-you downloaded it from this repository.
+    cmake -S . -B build -G Ninja -DDATAVIZ_PORTABLE_UI=ON
+    cmake --build build
+    ctest --test-dir build --output-on-failure
+    .\build\GraphStudio.exe
 
-## Option B: Build your own Windows executable
+## Using the app
 
-Requirements: Windows 10/11, CMake 3.16+ and a C++17 compiler. For a simple
-redistributable EXE, use Visual Studio 2022 with Desktop development with C++.
-From a PowerShell terminal **at the repository root**, run:
+Browse a CSV or use the packaged samples. A Month/Sales dataset
+automatically selects Line Plot. All nine charts are available from
+the graph-type selector.
 
-```powershell
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64 -DDATAVIZ_PORTABLE_UI=ON
-cmake --build build --config Release
-ctest --test-dir build -C Release --output-on-failure
-```
+Set X, Y, a graph heading and axis labels. Click Generate Graph to
+preview and export SVG. Click Statistics for mean, quartiles and other
+calculations. Type a note, click Place on Chart, then click the chart
+to position it. Automatic Statistical Notes adds labels for numerical charts.
 
-The desktop program is at `build\Release\GraphStudio.exe`.
-To use this as a portable application, **copy the EXE** into a writable
-`GraphStudio` folder, create `GraphStudio\data\input` and copy
-`data\input\*.csv` from the repository into it. The program creates
-`data\output` on the first export.
+Open Saved SVG or Open Output Folder to view generated graphs.
+Heatmap uses the numerical columns; Pie Chart uses category frequencies.
+Scatter Plot requires numerical X and Y.
 
-For the developer build without `-DDATAVIZ_PORTABLE_UI=ON`, the executable
-may instead be named `graph_studio.exe` and sample/output paths use the
-developer source checkout.
-
-## Option C: Download a CI artifact
-
-On the repository's [Actions page](https://github.com/TRomeoPrince/DATA_VISUALISATION_LIBRABRY-GROUP4/actions),
-open a successful **C++ Build, Tests and Graph Examples** run. Under
-**Artifacts**, download **GraphStudio-Windows-x64** and extract the inner ZIP.
-Artifacts may expire and often require GitHub sign-in; GitHub **Releases** are
-preferable for regular users.
-
-## How maintainers publish a versioned release
-
-After merging tested changes to `main`, tag the commit and push the tag:
-
-```powershell
-git switch main
-git pull --ff-only origin main
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-Use a new version number if `v1.0.0` already exists. The GitHub Actions
-Windows job will compile the portable EXE with the MSVC static C++ runtime,
-run all C++ tests, ZIP the app and sample CSVs, extract the ZIP and invoke a
-headless `--self-test` to verify that it reads CSV and writes an SVG from a
-different working directory. After success, it uploads the ZIP as a CI artifact
-and publishes the same ZIP under that GitHub Release.
-
-**Verification boundaries:** The CI self-test checks build success, runtime
-dependencies, CSV loading and SVG output. It does not test clicking buttons,
-window appearance, CSV file picker or other manual GUI interactions.
-
-## Source tree and current build tools
-
-The underlying portable library is built from `include/` and `src/` through
-`CMakeLists.txt`; executable examples are in `examples/`, and automated tests
-are in `tests/`. This is all C++17. On Linux/macOS the library and console
-examples remain buildable, but this Win32 GUI is not available.
+The portable --self-test checks CSV loading and SVG output without opening
+a window. GitHub CI compiles and runs unit tests on Ubuntu and Windows.
+Manual visual QA is still recommended before publishing a release.
+PNG/JPG encoding is not supported by this version.
