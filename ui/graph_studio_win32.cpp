@@ -20,8 +20,10 @@
 #include "Annotation.hpp"
 #include "Renderer.hpp"
 #include "SVGExporter.hpp"
+#include "ImageExporter.hpp"
 #include <algorithm>
 #include <cctype>
+#include <cstdint>
 #include <cmath>
 #include <filesystem>
 #include <iomanip>
@@ -41,7 +43,7 @@ constexpr int CW=900, CH=560;
 enum :int {
     ID_BROWSE=101,ID_TYPE,ID_X,ID_Y,ID_TITLE,ID_XLABEL,ID_YLABEL,ID_BINS,
     ID_GENERATE,ID_STATS,ID_NOTE_TEXT,ID_ADD_NOTE,ID_CLEAR_NOTE,ID_AUTO_STATS,
-    ID_OPEN_SVG,ID_OPEN_FOLDER
+    ID_OPEN_SVG,ID_OPEN_FOLDER,ID_SAVE_PNG,ID_SAVE_JPG
 };
 constexpr const char* chartNames[]={
     "Histogram","KDE Plot","Count Plot","Bar Chart","Line Plot",
@@ -391,8 +393,10 @@ COLORREF color(std::size_t n){
         RGB(224,102,81),RGB(125,95,179),RGB(47,155,126)};
     return palette[n%6];
 }
-void draw(HDC dc){
-    RECT r;GetClientRect(s.preview,&r);
+void draw(HDC dc,bool exportImage=false){
+    RECT r{};
+    if(exportImage){r.right=CW;r.bottom=CH;}
+    else GetClientRect(s.preview,&r);
     FillRect(dc,&r,reinterpret_cast<HBRUSH>(GetStockObject(WHITE_BRUSH)));
     if(s.chart.kind<0){
         SetBkMode(dc,TRANSPARENT);
@@ -535,6 +539,57 @@ void draw(HDC dc){
         textAt(dc,static_cast<int>(note.x),static_cast<int>(note.y),note.text);
     SetTextColor(dc,RGB(0,0,0));
 }
+
+std::vector<std::uint8_t> previewRGB(){
+    if(s.chart.kind<0)throw std::runtime_error("Generate a chart before exporting it.");
+    HDC windowDC=GetDC(s.preview);
+    if(!windowDC)throw std::runtime_error("Cannot access preview canvas.");
+    HDC memory=CreateCompatibleDC(windowDC);
+    BITMAPINFO info{};
+    info.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+    info.bmiHeader.biWidth=CW;
+    info.bmiHeader.biHeight=-CH; // top-down rows
+    info.bmiHeader.biPlanes=1;
+    info.bmiHeader.biBitCount=32;
+    info.bmiHeader.biCompression=BI_RGB;
+    void* bits=nullptr;
+    HBITMAP bitmap=CreateDIBSection(windowDC,&info,DIB_RGB_COLORS,&bits,nullptr,0);
+    ReleaseDC(s.preview,windowDC);
+    if(!memory||!bitmap||!bits){
+        if(bitmap)DeleteObject(bitmap);
+        if(memory)DeleteDC(memory);
+        throw std::runtime_error("Could not allocate image canvas.");
+    }
+    HGDIOBJ original=SelectObject(memory,bitmap);
+    try{
+        draw(memory,true);
+        const auto* source=static_cast<const std::uint8_t*>(bits);
+        std::vector<std::uint8_t> rgb(static_cast<std::size_t>(CW)*CH*3);
+        for(std::size_t i=0;i<static_cast<std::size_t>(CW)*CH;++i){
+            rgb[i*3]=source[i*4+2];
+            rgb[i*3+1]=source[i*4+1];
+            rgb[i*3+2]=source[i*4];
+        }
+        SelectObject(memory,original);
+        DeleteObject(bitmap);
+        DeleteDC(memory);
+        return rgb;
+    }catch(...){
+        SelectObject(memory,original);
+        DeleteObject(bitmap);
+        DeleteDC(memory);
+        throw;
+    }
+}
+void saveRaster(bool jpeg){
+    const auto rgb=previewRGB();
+    auto dest=fs::path(s.chart.svgPath);
+    dest.replace_extension(jpeg?".jpg":".png");
+    if(jpeg)ImageExporter::saveJPG(rgb,CW,CH,dest.string(),90);
+    else ImageExporter::savePNG(rgb,CW,CH,dest.string());
+    status("Saved "+dest.string());
+}
+
 LRESULT CALLBACK previewProc(HWND window,UINT msg,WPARAM wp,LPARAM lp){
     if(msg==WM_LBUTTONDOWN&&s.placing){
         RECT r;GetClientRect(window,&r);
@@ -587,7 +642,9 @@ void makeControls(){
     s.openSvg=control("BUTTON","Open Saved SVG",BS_PUSHBUTTON,ID_OPEN_SVG,18,595,146,32);
     control("BUTTON","Open Output Folder",BS_PUSHBUTTON,ID_OPEN_FOLDER,175,595,147,32);
     EnableWindow(s.openSvg,FALSE);
-    s.status=control("STATIC","Ready",0,0,18,647,300,90);
+    control("BUTTON","Save PNG",BS_PUSHBUTTON,ID_SAVE_PNG,18,640,146,31);
+    control("BUTTON","Save JPG",BS_PUSHBUTTON,ID_SAVE_JPG,175,640,147,31);
+    s.status=control("STATIC","Ready",0,0,18,685,302,55);
     s.preview=CreateWindowExA(WS_EX_CLIENTEDGE,"GraphStudioCanvas","",
         WS_CHILD|WS_VISIBLE,350,54,900,650,s.window,nullptr,
         GetModuleHandleA(nullptr),nullptr);
@@ -612,6 +669,8 @@ LRESULT CALLBACK mainProc(HWND window,UINT msg,WPARAM wp,LPARAM lp){
             else if(id==ID_BROWSE&&notification==BN_CLICKED)browse();
             else if(id==ID_GENERATE&&notification==BN_CLICKED)generate();
             else if(id==ID_STATS&&notification==BN_CLICKED)statsDialog();
+            else if(id==ID_SAVE_PNG&&notification==BN_CLICKED)saveRaster(false);
+            else if(id==ID_SAVE_JPG&&notification==BN_CLICKED)saveRaster(true);
             else if(id==ID_ADD_NOTE&&notification==BN_CLICKED){
                 if(getText(s.noteText).empty())throw std::runtime_error("Enter a note before placing it.");
                 if(s.chart.kind<0)throw std::runtime_error("Generate a graph first.");
@@ -648,6 +707,9 @@ int selfTest(){
         fs::create_directories(outputDir());
         const auto output=(outputDir()/"portable_smoke.svg").string();
         SVGExporter::save(Renderer::renderCountPlot(counts,CW,CH,"Portable Self Test"),output);
+        const std::vector<std::uint8_t> pixels={255,0,0,0,255,0,0,0,255,255,255,255};
+        ImageExporter::savePNG(pixels,2,2,(outputDir()/"portable_smoke.png").string());
+        ImageExporter::saveJPG(pixels,2,2,(outputDir()/"portable_smoke.jpg").string(),90);
         return fs::exists(output)&&fs::file_size(output)>50?0:2;
     }catch(...){return 3;}
 }
