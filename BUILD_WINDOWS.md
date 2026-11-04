@@ -7,7 +7,7 @@ Choose a successful C++ Build, Tests and Graph Examples workflow run,
 download the **GraphStudio-Windows-x64** artifact and extract its ZIP.
 
 Double-click GraphStudio.exe in the extracted GraphStudio folder, with
-data/input beside it. Graph SVGs are saved into data/output next to the EXE.
+data/input beside it. Graph SVGs, PNGs and JPGs are saved into data/output next to the EXE.
 The unsigned app may prompt a Windows SmartScreen warning.
 
 ## Build from source
@@ -34,7 +34,7 @@ automatically selects Line Plot. All nine charts are available from
 the graph-type selector.
 
 Set X, Y, a graph heading and axis labels. Click Generate Graph to
-preview and export SVG. Click Statistics for mean, quartiles and other
+preview and export SVG. Use Save PNG or Save JPG for bitmap copies. Click Statistics for mean, quartiles and other
 calculations. Type a note, click Place on Chart, then click the chart
 to position it. Automatic Statistical Notes adds labels for numerical charts.
 

@@ -58,8 +58,8 @@ jobs:
             ""
             "1. Extract the ZIP into a normal folder such as Downloads or Documents."
             "2. Double-click GraphStudio.exe to open the native C++ GUI."
-            "3. Pick a CSV, choose the graph, then click Generate SVG Graph."
-            "4. Graph files are saved next to the EXE in data/output/."
+            "3. Pick a CSV, choose one of nine charts, then click Generate Graph."
+            "4. Save SVG, PNG or JPG graphs into data/output/ next to the EXE."
             ""
             "Windows may ask you to confirm a downloaded unsigned app."
             "Only run files you trust. No Python or terminal is required."
@@ -76,6 +76,11 @@ jobs:
           $svgPath = Join-Path $unpacked "GraphStudio/data/output/portable_smoke.svg"
           if (-not (Test-Path $svgPath)) { throw "The portable application did not generate an SVG." }
           if ((Get-Item $svgPath).Length -eq 0) { throw "Generated SVG is empty." }
+          foreach ($ext in @("png","jpg")) {
+            $raster = Join-Path $unpacked "GraphStudio/data/output/portable_smoke.$ext"
+            if (-not (Test-Path $raster)) { throw "Portable $ext export did not run." }
+            if ((Get-Item $raster).Length -eq 0) { throw "Portable $ext export is empty." }
+          }
       - name: Attach portable Graph Studio ZIP to workflow run
         uses: actions/upload-artifact@v4
         with:

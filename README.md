@@ -15,8 +15,10 @@ interquartile range, variance, standard deviation and Tukey box-plot outliers.
 categorical month/subject X-axis labels, X/Y-axis labels, readable numeric
 ticks, themes and palettes, interactive annotations and statistical notes.
 
-**Output:** SVG vector images. The Windows app shows a GDI graph preview.
-PNG/JPG export is not implemented; SVG is the supported export format.
+**Output:** SVG vector graphs on all platforms; PNG and JPEG exports through the
+native Windows GDI+ raster backend. Graph Studio previews the chart and provides
+**Open SVG**, **Save PNG**, and **Save JPG** actions. The raster exporters accept an
+RGBA pixel buffer; SVGExporter saves vector markup.
 
 ## Architecture
 

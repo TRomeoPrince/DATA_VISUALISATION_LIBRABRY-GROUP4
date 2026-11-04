@@ -718,6 +718,12 @@ int selfTest(){
         fs::create_directories(outputDir());
         const auto output=(outputDir()/"portable_smoke.svg").string();
         SVGExporter::save(Renderer::renderCountPlot(counts,CW,CH,"Portable Self Test"),output);
+        const std::vector<std::uint8_t> testPixels={
+            255,0,0,255, 0,255,0,255,
+            0,0,255,255, 255,255,0,255
+        };
+        ImageExporter::savePNG(testPixels,2,2,(outputDir()/"portable_smoke.png").string());
+        ImageExporter::saveJPG(testPixels,2,2,(outputDir()/"portable_smoke.jpg").string(),90);
         return fs::exists(output)&&fs::file_size(output)>50?0:2;
     }catch(...){return 3;}
 }
