@@ -413,8 +413,16 @@ void draw(HDC dc){
         MoveToEx(dc,left,top,nullptr);LineTo(dc,left,bottom);
         LineTo(dc,right,bottom);
         textAt(dc,(left+right)/2,520,s.chart.xLabel);
+        // Rotate the Y-axis heading so it does not collide with values.
+        HFONT vertical=CreateFontA(-16,0,900,900,FW_NORMAL,FALSE,FALSE,FALSE,
+            DEFAULT_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,
+            CLEARTYPE_QUALITY,DEFAULT_PITCH,"Segoe UI");
+        HGDIOBJ oldFont=SelectObject(dc,vertical);
+        SetTextAlign(dc,TA_CENTER);
+        textAt(dc,18,265,s.chart.yLabel);
         SetTextAlign(dc,TA_LEFT);
-        textAt(dc,7,245,s.chart.yLabel);
+        SelectObject(dc,oldFont);
+        DeleteObject(vertical);
     }
     double xmin=0,xmax=1,ymin=0,ymax=1;
     if(!s.chart.x.empty()&&!s.chart.y.empty()){
@@ -465,14 +473,18 @@ void draw(HDC dc){
                 int x2=left+static_cast<int>((i+0.86)*(right-left)/n);
                 HBRUSH brush=CreateSolidBrush(color(i));
                 HGDIOBJ old=SelectObject(dc,brush);
-                Rectangle(dc,x1,py(s.chart.y[i]),x2,bottom);
+                Rectangle(dc,x1,std::min(py(s.chart.y[i]),py(0)),x2,
+                          std::max(py(s.chart.y[i]),py(0)));
                 SelectObject(dc,old);DeleteObject(brush);
             }
         }else{
             HPEN pen=CreatePen(PS_SOLID,2,color(kind));
             HGDIOBJ old=SelectObject(dc,pen);
             for(std::size_t i=0;i<s.chart.x.size();++i){
-                int x=px(s.chart.x[i]),y=py(s.chart.y[i]);
+                int x=(cats&&kind==4)
+                    ?left+static_cast<int>((i+0.5)*(right-left)/s.chart.x.size())
+                    :px(s.chart.x[i]);
+                int y=py(s.chart.y[i]);
                 if(kind!=5){
                     if(i==0)MoveToEx(dc,x,y,nullptr);
                     else LineTo(dc,x,y);
