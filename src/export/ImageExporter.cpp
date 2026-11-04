@@ -55,6 +55,7 @@ void ImageExporter::saveSVG(
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
+#include <objidl.h> // COM IStream / IPicture declarations needed by GDI+ headers
 #include <gdiplus.h>
 #include <cwchar>
 #endif
