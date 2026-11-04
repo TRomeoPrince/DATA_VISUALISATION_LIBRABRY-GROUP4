@@ -32,6 +32,52 @@
 #endif
 
 namespace {
+// A packaged application locates its CSV files from the executable's folder,
+// rather than from the GitHub Actions runner or a developer's source tree.
+std::filesystem::path executableDirectory() {
+    char location[MAX_PATH] = {};
+    const DWORD length = GetModuleFileNameA(nullptr, location, MAX_PATH);
+    if (length > 0 && length < MAX_PATH) {
+        return std::filesystem::path(location).parent_path();
+    }
+    return std::filesystem::current_path();
+}
+
+std::filesystem::path outputDirectory() {
+#ifdef DATAVIZ_PORTABLE_UI
+    return executableDirectory() / "data" / "output";
+#else
+    return std::filesystem::path(ImageExporter::outputFile("example.svg")).parent_path();
+#endif
+}
+
+std::string defaultCsvPath() {
+#ifdef DATAVIZ_PORTABLE_UI
+    return (executableDirectory() / "data" / "input" / "sample.csv").string();
+#else
+    return DATAVIZ_SAMPLE_CSV_PATH;
+#endif
+}
+
+// This runs without creating a window and verifies a downloaded ZIP can read
+// its own sample CSV and write an SVG, regardless of the current directory.
+int runPortableSelfTest() {
+    try {
+        const auto csv = defaultCsvPath();
+        const auto rows = DataProcessor::cleanRows(DataLoader::loadCSV(csv));
+        const auto programmes = DataProcessor::getColumn(rows, 1);
+        const auto counts = CountPlot::calculate(programmes);
+        const auto svg = Renderer::renderCountPlot(counts, 800, 500,
+                                                    "Portable Graph Studio Test");
+        const auto destination = outputDirectory() / "portable_smoke.svg";
+        ImageExporter::saveSVG(svg, destination.string());
+        return std::filesystem::exists(destination) &&
+               std::filesystem::file_size(destination) > 0 ? 0 : 2;
+    } catch (const std::exception&) {
+        return 3;
+    }
+}
+
 constexpr int ID_BROWSE = 1001;
 constexpr int ID_TYPE = 1002;
 constexpr int ID_COLUMN = 1003;
@@ -52,7 +98,7 @@ struct Studio {
     HWND status = nullptr;
     HWND openSvg = nullptr;
     HFONT font = nullptr;
-    std::string csvPath = DATAVIZ_SAMPLE_CSV_PATH;
+    std::string csvPath = defaultCsvPath();
     std::string exportedPath;
     std::string graphTitle;
     std::string xLabel;
@@ -232,8 +278,15 @@ void generateGraph() {
             throw std::runtime_error("Choose a graph type.");
         }
 
+#ifdef DATAVIZ_PORTABLE_UI
+        // Use an explicit output path, because the library's normal default
+        // may have been compiled with an absolute path to the source checkout.
+        studio.exportedPath = (outputDirectory() / filename).string();
+        ImageExporter::saveSVG(svg, studio.exportedPath);
+#else
         ImageExporter::saveSVG(svg, filename);
         studio.exportedPath = ImageExporter::outputFile(filename);
+#endif
         studio.hasGraph = true;
         EnableWindow(studio.openSvg, TRUE);
         setStatus("Saved SVG in data/output: " + filename);
@@ -255,8 +308,7 @@ void openSvg() {
 
 void openOutputFolder() {
     try {
-        const auto folder = std::filesystem::path(
-            ImageExporter::outputFile("example.svg")).parent_path();
+        const auto folder = outputDirectory();
         std::filesystem::create_directories(folder);
         const HINSTANCE result = ShellExecuteA(studio.window, "open",
                                                folder.string().c_str(),
@@ -516,7 +568,10 @@ LRESULT CALLBACK windowProcedure(HWND window, UINT message,
 }
 }  // namespace
 
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int show) {
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR args, int show) {
+    if (args != nullptr && std::string(args) == "--self-test") {
+        return runPortableSelfTest();
+    }
     const char* windowClass = "Group4GraphStudioNative";
     WNDCLASSA wc{};
     wc.lpfnWndProc = windowProcedure;
