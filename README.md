@@ -8,13 +8,17 @@ A C++17 visualization library and native Windows Graph Studio app.
 Scatter Plot, Box Plot, Heatmap and Pie Chart.
 
 **Data and statistics:** CSV parsing (including quoted commas and multiline
-cells), flat JSON table imports, DVL1 binary table import/export, cleaning,
+cells), flat JSON table imports, DVZ1 binary table import/export, cleaning,
 paired numerical columns, mean, median, mode, quartiles,
 interquartile range, variance, standard deviation and Tukey box-plot outliers.
 
 **Visualization:** automatically suggested chart headings, editable titles,
 categorical month/subject X-axis labels, X/Y-axis labels, readable numeric
 ticks, themes and palettes, interactive annotations and statistical notes.
+**Numeric display precision:** X-axis ticks and histogram bin labels show exactly
+**3 decimal places** (e.g. 87.123); Y-axis ticks, heatmap cell values and
+Statistics show **4 decimal places** (e.g. 4.5678). Category labels retain
+their original text. Calculations retain their full precision.
 
 **Output:** SVG vector graphs on all platforms; PNG and JPEG exports through the
 native Windows GDI+ raster backend. Graph Studio previews the chart and provides

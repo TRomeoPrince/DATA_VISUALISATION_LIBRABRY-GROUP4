@@ -1,6 +1,7 @@
 #include "Renderer.hpp"
 
 #include "Axis.hpp"
+#include "Config.hpp"
 
 #include <algorithm>
 #include <iomanip>
@@ -28,7 +29,7 @@ std::string axisLabels(int width, int height,
     return svg.str();
 }
 
-std::string number(double value, int precision = 2) {
+std::string number(double value, int precision = AxisPrecision::x) {
     std::ostringstream out;
     out << std::fixed << std::setprecision(precision) << value;
     return out.str();
@@ -148,7 +149,7 @@ std::string Renderer::renderCountPlot(
         svg << "<text x=\"" << (plotLeft - 10) << "\" y=\"" << (y + 4)
             << "\" text-anchor=\"end\" font-size=\"11\""
             << " font-family=\"sans-serif\">"
-            << number(tick, 1) << "</text>\n";
+            << number(tick, AxisPrecision::y) << "</text>\n";
     }
 
     for (const auto& note : annotations.getItems()) {
@@ -221,7 +222,7 @@ std::string Renderer::renderHistogram(
             << "\" y=\"" << (plotBottom + 18)
             << "\" text-anchor=\"middle\" font-size=\"10\""
             << " font-family=\"sans-serif\">"
-            << number(bin.lower, 1) << "</text>\n";
+            << number(bin.lower, AxisPrecision::x) << "</text>\n";
     }
 
     for (double tick : yAxis.ticks()) {
@@ -229,7 +230,7 @@ std::string Renderer::renderHistogram(
         svg << "<text x=\"" << (plotLeft - 10) << "\" y=\"" << (y + 4)
             << "\" text-anchor=\"end\" font-size=\"11\""
             << " font-family=\"sans-serif\">"
-            << number(tick, 1) << "</text>\n";
+            << number(tick, AxisPrecision::y) << "</text>\n";
     }
 
     for (const auto& note : annotations.getItems()) {
@@ -314,7 +315,7 @@ std::string Renderer::renderKDE(
         svg << "<text x=\"" << x << "\" y=\"" << (plotBottom + 20)
             << "\" text-anchor=\"middle\" font-size=\"11\""
             << " font-family=\"sans-serif\">"
-            << number(tick, 1) << "</text>\n";
+            << number(tick, AxisPrecision::x) << "</text>\n";
     }
 
     for (double tick : yAxis.ticks()) {
@@ -322,7 +323,7 @@ std::string Renderer::renderKDE(
         svg << "<text x=\"" << (plotLeft - 10) << "\" y=\"" << (y + 4)
             << "\" text-anchor=\"end\" font-size=\"11\""
             << " font-family=\"sans-serif\">"
-            << number(tick, 3) << "</text>\n";
+            << number(tick, AxisPrecision::y) << "</text>\n";
     }
 
     for (const auto& note : annotations.getItems()) {
@@ -373,10 +374,10 @@ struct Canvas {
         for(int i=0;i<=5;++i){
             double v=ymin+(ymax-ymin)*i/5.0, y=mapData(v,bottom,top,ymin,ymax);
             out<<"<line x1=\""<<left<<"\" y1=\""<<y<<"\" x2=\""<<right<<"\" y2=\""<<y<<"\" stroke=\"#e1e7ec\" stroke-width=\"0.7\"/>\n";
-            out<<"<text x=\""<<left-9<<"\" y=\""<<y+4<<"\" text-anchor=\"end\" font-family=\"sans-serif\" font-size=\"10\">"<<Utils::decimal(v,4)<<"</text>\n";
+            out<<"<text x=\""<<left-9<<"\" y=\""<<y+4<<"\" text-anchor=\"end\" font-family=\"sans-serif\" font-size=\"10\">"<<Utils::decimal(v,AxisPrecision::y)<<"</text>\n";
             double x=xmin+(xmax-xmin)*i/5.0;
             if(showX)out<<"<text x=\""<<mapData(x,left,right,xmin,xmax)<<"\" y=\""<<bottom+20
-               <<"\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"10\">"<<Utils::decimal(x,3)<<"</text>\n";
+               <<"\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"10\">"<<Utils::decimal(x,AxisPrecision::x)<<"</text>\n";
         }
     }
     void categories(const std::vector<std::string>& labels,const std::vector<double>& x,double xmin,double xmax){
@@ -495,7 +496,7 @@ std::string Renderer::renderHeatmap(const Heatmap::Matrix& input,int w,int h,
         if(data.size()<=12&&data[r].size()<=12)
             c.out<<"<text x=\""<<c.left+(col+0.5)*cw<<"\" y=\""<<c.top+(r+0.5)*ch+4
                  <<"\" font-family=\"sans-serif\" font-size=\"11\" text-anchor=\"middle\" fill=\"white\">"
-                 <<Utils::decimal(data[r][col],2)<<"</text>\n";
+                 <<Utils::decimal(data[r][col],AxisPrecision::y)<<"</text>\n";
     }
     return c.finish(notes);
 }

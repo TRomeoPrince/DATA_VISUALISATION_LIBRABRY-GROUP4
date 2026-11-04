@@ -31,6 +31,11 @@ int main(){
     assert(svg.find(">Jan</text>")!=std::string::npos);
     assert(svg.find("Sales &amp; growth")!=std::string::npos);
     assert(Renderer::renderScatterPlot(scatter).find("<circle")!=std::string::npos);
+    auto numericLine=Renderer::renderLinePlot(LinePlot::build({1.0,2.0},{0.0,1.0}));
+    assert(numericLine.find(">1.000</text>")!=std::string::npos);
+    assert(numericLine.find(">0.0000</text>")!=std::string::npos);
+    auto heatSvg=Renderer::renderHeatmap({{1.25,2.0},{3.0,4.0}});
+    assert(heatSvg.find(">1.2500</text>")!=std::string::npos);
     assert(Renderer::renderBarChart(bars).find("Jan")!=std::string::npos);
     assert(Renderer::renderBoxPlot(box).find("<rect")!=std::string::npos);
     assert(Renderer::renderHeatmap(heat).find("<rect")!=std::string::npos);

@@ -19,6 +19,7 @@
 #include "PieChart.hpp"
 #include "Annotation.hpp"
 #include "Renderer.hpp"
+#include "Config.hpp"
 #include "SVGExporter.hpp"
 #include "ImageExporter.hpp"
 #include <algorithm>
@@ -241,10 +242,10 @@ std::vector<std::string> columnText(int col){
 Annotation annotationsFor(const Chart& chart,const std::vector<double>& statistics){
     Annotation a=s.notes;
     if(SendMessageA(s.autoStats,BM_GETCHECK,0,0)==BST_CHECKED&&!statistics.empty()){
-        a.add(620,70,"Mean: "+fmt(Statistics::mean(statistics),4));
-        a.add(620,91,"Median: "+fmt(Statistics::median(statistics),4));
-        a.add(620,112,"Q1: "+fmt(Statistics::firstQuartile(statistics),4));
-        a.add(620,133,"Q3: "+fmt(Statistics::thirdQuartile(statistics),4));
+        a.add(620,70,"Mean: "+fmt(Statistics::mean(statistics),AxisPrecision::statistics));
+        a.add(620,91,"Median: "+fmt(Statistics::median(statistics),AxisPrecision::statistics));
+        a.add(620,112,"Q1: "+fmt(Statistics::firstQuartile(statistics),AxisPrecision::statistics));
+        a.add(620,133,"Q3: "+fmt(Statistics::thirdQuartile(statistics),AxisPrecision::statistics));
     }
     return a;
 }
@@ -374,21 +375,21 @@ void statsDialog(){
     if(v.empty())throw std::runtime_error("Choose a numerical data column.");
     std::ostringstream out;
     out<<"Count: "<<v.size()<<"\r\n"
-       <<"Mean: "<<fmt(Statistics::mean(v),4)<<"\r\n"
-       <<"Median: "<<fmt(Statistics::median(v),4)<<"\r\n"
-       <<"Minimum: "<<fmt(Statistics::minimum(v),4)<<"\r\n"
-       <<"Maximum: "<<fmt(Statistics::maximum(v),4)<<"\r\n"
-       <<"Variance: "<<fmt(Statistics::variance(v),4)<<"\r\n"
-       <<"Std Dev: "<<fmt(Statistics::standardDeviation(v),4)<<"\r\n"
-       <<"Q1: "<<fmt(Statistics::firstQuartile(v),4)<<"\r\n"
-       <<"Q3: "<<fmt(Statistics::thirdQuartile(v),4)<<"\r\n"
-       <<"IQR: "<<fmt(Statistics::interquartileRange(v),4);
+       <<"Mean: "<<fmt(Statistics::mean(v),AxisPrecision::statistics)<<"\r\n"
+       <<"Median: "<<fmt(Statistics::median(v),AxisPrecision::statistics)<<"\r\n"
+       <<"Minimum: "<<fmt(Statistics::minimum(v),AxisPrecision::statistics)<<"\r\n"
+       <<"Maximum: "<<fmt(Statistics::maximum(v),AxisPrecision::statistics)<<"\r\n"
+       <<"Variance: "<<fmt(Statistics::variance(v),AxisPrecision::statistics)<<"\r\n"
+       <<"Std Dev: "<<fmt(Statistics::standardDeviation(v),AxisPrecision::statistics)<<"\r\n"
+       <<"Q1: "<<fmt(Statistics::firstQuartile(v),AxisPrecision::statistics)<<"\r\n"
+       <<"Q3: "<<fmt(Statistics::thirdQuartile(v),AxisPrecision::statistics)<<"\r\n"
+       <<"IQR: "<<fmt(Statistics::interquartileRange(v),AxisPrecision::statistics);
     const auto modes=Statistics::mode(v);
     out<<"\r\nMode: ";
     if(modes.empty())out<<"No repeated value";
     else for(std::size_t i=0;i<modes.size();++i){
         if(i)out<<", ";
-        out<<fmt(modes[i],4);
+        out<<fmt(modes[i],AxisPrecision::statistics);
     }
     MessageBoxA(s.window,out.str().c_str(),"Statistics",MB_OK|MB_ICONINFORMATION);
 }
@@ -456,7 +457,7 @@ void draw(HDC dc,bool exportImage=false){
             (kind==4&&!s.chart.labels.empty()&&!numericColumn(indexOf(s.x))));
         for(int i=0;i<=4;++i){
             int y=bottom-(bottom-top)*i/4;
-            textAt(dc,37,y-7,fmt(ymin+(ymax-ymin)*i/4,4));
+            textAt(dc,37,y-7,fmt(ymin+(ymax-ymin)*i/4,AxisPrecision::y));
         }
         if(cats){
             std::size_t n=s.chart.y.size();
@@ -473,7 +474,7 @@ void draw(HDC dc,bool exportImage=false){
             for(int i=0;i<=5;++i){
                 int x=left+(right-left)*i/5;
                 SetTextAlign(dc,TA_CENTER);
-                textAt(dc,x,bottom+8,fmt(xmin+(xmax-xmin)*i/5,3));
+                textAt(dc,x,bottom+8,fmt(xmin+(xmax-xmin)*i/5,AxisPrecision::x));
                 SetTextAlign(dc,TA_LEFT);
             }
         }
@@ -717,6 +718,10 @@ LRESULT CALLBACK mainProc(HWND window,UINT msg,WPARAM wp,LPARAM lp){
 }
 int selfTest(){
     try{
+        // Catch any accidental change to the display precision in CI.
+        if(fmt(12.34567,AxisPrecision::x)!="12.346" ||
+           fmt(12.34567,AxisPrecision::y)!="12.3457" ||
+           fmt(12.34567,AxisPrecision::statistics)!="12.3457")return 4;
         auto file=defaultCsv();
         auto table=DataProcessor::cleanRows(DataLoader::loadCSV(file.string()));
         auto col=DataProcessor::getColumn(table,1);
