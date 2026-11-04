@@ -367,7 +367,7 @@ struct Canvas {
                <<")\" font-family=\"sans-serif\" font-size=\"15\" text-anchor=\"middle\">"<<Utils::escapeXML(ylabel)<<"</text>\n";
         }
     }
-    void ticks(double xmin,double xmax,double ymin,double ymax) {
+    void ticks(double xmin,double xmax,double ymin,double ymax,bool showX=true) {
         if(ymin==ymax){ymin-=0.5;ymax+=0.5;}
         if(xmin==xmax){xmin-=0.5;xmax+=0.5;}
         for(int i=0;i<=5;++i){
@@ -375,7 +375,7 @@ struct Canvas {
             out<<"<line x1=\""<<left<<"\" y1=\""<<y<<"\" x2=\""<<right<<"\" y2=\""<<y<<"\" stroke=\"#e1e7ec\" stroke-width=\"0.7\"/>\n";
             out<<"<text x=\""<<left-9<<"\" y=\""<<y+4<<"\" text-anchor=\"end\" font-family=\"sans-serif\" font-size=\"10\">"<<Utils::decimal(v,4)<<"</text>\n";
             double x=xmin+(xmax-xmin)*i/5.0;
-            out<<"<text x=\""<<mapData(x,left,right,xmin,xmax)<<"\" y=\""<<bottom+20
+            if(showX)out<<"<text x=\""<<mapData(x,left,right,xmin,xmax)<<"\" y=\""<<bottom+20
                <<"\" text-anchor=\"middle\" font-family=\"sans-serif\" font-size=\"10\">"<<Utils::decimal(x,3)<<"</text>\n";
         }
     }
@@ -418,7 +418,7 @@ std::string Renderer::renderLinePlot(const std::vector<LinePoint>& data,int w,in
     Canvas c(w,h,title,xl,yl);
     if(labels.empty())c.ticks(xmin,xmax,ymin,ymax);
     else{
-        c.ticks(xmin,xmax,ymin,ymax);
+        c.ticks(xmin,xmax,ymin,ymax,false);
         std::vector<double> xv;for(const auto& p:data)xv.push_back(p.x);
         c.categories(labels,xv,xmin,xmax);
     }
@@ -447,7 +447,7 @@ std::string Renderer::renderBarChart(const std::vector<BarItem>& data,int w,int 
         labels.push_back(data[i].category);positions.push_back(static_cast<double>(i)+0.5);}
     if(min==max)max+=1;
     Canvas c(w,h,title,xl,yl);
-    c.ticks(0,static_cast<double>(data.size()),min,max);
+    c.ticks(0,static_cast<double>(data.size()),min,max,false);
     c.categories(labels,positions,0,static_cast<double>(data.size()));
     double zero=mapData(0,c.bottom,c.top,min,max);
     double slot=(c.right-c.left)/data.size();

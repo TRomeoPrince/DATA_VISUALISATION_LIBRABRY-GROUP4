@@ -21,6 +21,7 @@
 #include "Renderer.hpp"
 #include "SVGExporter.hpp"
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 #include <filesystem>
 #include <iomanip>

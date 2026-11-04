@@ -66,6 +66,7 @@ foreach(module dataloader dataprocessor statistics histogram kdeplot
 endforeach()
 add_dataviz_test(test_integration)
 add_dataviz_test(test_extended_plots)
+add_dataviz_test(test_csv_quotes)
 if(WIN32)
     add_executable(graph_studio WIN32 ui/graph_studio_win32.cpp)
     target_link_libraries(graph_studio PRIVATE dataviz user32 gdi32 comdlg32 shell32)
