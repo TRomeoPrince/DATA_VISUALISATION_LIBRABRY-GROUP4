@@ -71,22 +71,15 @@ The nine plot algorithms are separate from rendering and file export.
 This Draft repository is separate from the official Group 4 repository.
 
 
-### Additional data formats
 
-The library can import CSV, flat JSON object arrays (e.g.
-`[{"Month":"Jan","Sales":120}]`), and JSON table arrays
-(e.g. `[["Month","Sales"],["Jan",120]]`). Nested JSON values are intentionally
-rejected to prevent ambiguous matrix columns.
+## Additional data formats
 
-Binary datasets use the documented **DVL1** format: four-byte `DVL1` magic,
-a little-endian unsigned 32-bit row count, then for each row a little-endian
-column count, and for each cell its little-endian byte length followed by its
-UTF-8 bytes. Use `DataLoader::saveBinary` and `DataLoader::loadBinary`.
-Graph Studio's graphical file picker currently focuses on CSV.
+The library and Graph Studio can import CSV, flat JSON record arrays
+(`[{"Month":"Jan","Sales":120}]`) or JSON table arrays
+(`[["Month","Sales"],["Jan",120]]`), and .dvz binary tables.
+Nested JSON values are rejected so data has clearly defined columns.
 
-## Data formats
-
-Graph Studio accepts CSV, flat JSON arrays of objects/rows and .dvz binary tables.
-DVZ1 is a documented little-endian format: magic DVZ1, uint32 row count,
-uint32 column count, then per-cell uint32 UTF-8 byte length and bytes.
-The binary table's first row contains headers. Nested JSON is not supported.
+**DVZ1 binary format:** four-byte `DVZ1` magic, little-endian uint32
+row count, little-endian uint32 column count, then each UTF-8 cell is
+length-prefixed by a little-endian uint32. Tables must be rectangular.
+Use `DataLoader::saveBinary` and `DataLoader::loadBinary`.

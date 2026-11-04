@@ -16,11 +16,9 @@ public:
     // Flat JSON records: [{"Month":"Jan","Sales":120}, ...],
     // or a JSON table: [["Month","Sales"],["Jan",120],...].
     static Table loadJSON(const std::string& filePath);
-    // DVL1 binary format: a magic signature and length-prefixed UTF-8 cells.
+    // DVZ1 binary format: a magic signature and length-prefixed UTF-8 cells.
     static Table loadBinary(const std::string& filePath);
     static void saveBinary(const Table& table,const std::string& filePath);
-    static Table loadJSON(const std::string& filePath);
-    static Table loadBinary(const std::string& filePath);
 };
 
 #endif

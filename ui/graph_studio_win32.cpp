@@ -188,7 +188,7 @@ void loadCsv(const fs::path& filename){
     else loaded=DataLoader::loadCSV(filename.string());
     auto rows=DataProcessor::cleanRows(loaded);
     if(rows.size()<2||rows.front().empty())
-        throw std::runtime_error("CSV needs a header and at least one data row.");
+        throw std::runtime_error("Dataset needs a header and at least one data row.");
     s.rows=std::move(rows);
     s.headers=s.rows.front();
     s.csv=filename;s.notes.clear();s.chart=Chart{};
@@ -210,7 +210,7 @@ void loadCsv(const fs::path& filename){
     bestColumns();
     set(s.fileLabel,filename.filename().string());
     EnableWindow(s.openSvg,FALSE);
-    status("CSV loaded. Choose a chart and click Generate.");
+    status("Dataset loaded. Choose a chart and click Generate.");
     InvalidateRect(s.preview,nullptr,TRUE);
 }
 void browse(){
