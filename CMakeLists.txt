@@ -18,6 +18,17 @@ add_library(dataviz
     src/layout/Annotation.cpp
     src/rendering/Renderer.cpp
     src/export/ImageExporter.cpp
+    src/core/Config.cpp
+    src/core/Theme.cpp
+    src/core/ColorMap.cpp
+    src/core/Utils.cpp
+    src/plots/LinePlot.cpp
+    src/plots/ScatterPlot.cpp
+    src/plots/BarChart.cpp
+    src/plots/BoxPlot.cpp
+    src/plots/Heatmap.cpp
+    src/plots/PieChart.cpp
+    src/export/SVGExporter.cpp
 )
 target_include_directories(dataviz PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/include
@@ -54,6 +65,7 @@ foreach(module dataloader dataprocessor statistics histogram kdeplot
     add_dataviz_test(test_${module})
 endforeach()
 add_dataviz_test(test_integration)
+add_dataviz_test(test_extended_plots)
 if(WIN32)
     add_executable(graph_studio WIN32 ui/graph_studio_win32.cpp)
     target_link_libraries(graph_studio PRIVATE dataviz user32 gdi32 comdlg32 shell32)

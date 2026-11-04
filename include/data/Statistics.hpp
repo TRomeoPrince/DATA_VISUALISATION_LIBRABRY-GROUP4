@@ -14,6 +14,10 @@ public:
     static double minimum(const std::vector<double>& data);
     static double maximum(const std::vector<double>& data);
     static double median(std::vector<double> data);
+    static double firstQuartile(std::vector<double> data);
+    static double thirdQuartile(std::vector<double> data);
+    static double interquartileRange(std::vector<double> data);
+    static std::vector<double> mode(std::vector<double> data);
     static double variance(const std::vector<double>& data);
     static double standardDeviation(const std::vector<double>& data);
 };

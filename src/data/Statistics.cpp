@@ -65,3 +65,31 @@ double Statistics::variance(const std::vector<double>& data) {
 double Statistics::standardDeviation(const std::vector<double>& data) {
     return std::sqrt(variance(data));
 }
+
+namespace {
+double percentile(std::vector<double> data,double p) {
+    ensureNotEmpty(data);
+    std::sort(data.begin(),data.end());
+    double position=(data.size()-1)*p;
+    std::size_t left=static_cast<std::size_t>(position);
+    std::size_t right=std::min(data.size()-1,left+1);
+    return data[left]+(position-left)*(data[right]-data[left]);
+}
+}
+double Statistics::firstQuartile(std::vector<double> data) {return percentile(std::move(data),0.25);}
+double Statistics::thirdQuartile(std::vector<double> data) {return percentile(std::move(data),0.75);}
+double Statistics::interquartileRange(std::vector<double> data) {
+    return thirdQuartile(data)-firstQuartile(data);
+}
+std::vector<double> Statistics::mode(std::vector<double> data) {
+    ensureNotEmpty(data);std::sort(data.begin(),data.end());
+    std::vector<double> result;std::size_t best=0;
+    for(std::size_t i=0;i<data.size();) {
+        std::size_t j=i+1;
+        while(j<data.size()&&data[j]==data[i])++j;
+        if(j-i>best){best=j-i;result.clear();}
+        if(j-i==best)result.push_back(data[i]);
+        i=j;
+    }
+    return result;
+}

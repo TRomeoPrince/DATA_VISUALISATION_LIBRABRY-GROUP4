@@ -5,6 +5,13 @@
 #include "CountPlot.hpp"
 #include "Histogram.hpp"
 #include "KDEPlot.hpp"
+#include "LinePlot.hpp"
+#include "ScatterPlot.hpp"
+#include "BarChart.hpp"
+#include "BoxPlot.hpp"
+#include "Heatmap.hpp"
+#include "PieChart.hpp"
+#include "IBasePlot.hpp"
 
 #include <string>
 
@@ -43,6 +50,37 @@ public:
         const std::string& yLabel = "Density"
     );
 
+    static std::string render(const IBasePlot& plot,const RenderOptions& options);
+    static std::string renderLinePlot(
+        const std::vector<LinePoint>& points,int width=900,int height=560,
+        const std::string& title="Line Plot",const Annotation& notes=Annotation(),
+        const std::string& xLabel="X",const std::string& yLabel="Y",
+        const std::vector<std::string>& categories={}
+    );
+    static std::string renderScatterPlot(
+        const std::vector<ScatterPoint>& points,int width=900,int height=560,
+        const std::string& title="Scatter Plot",const Annotation& notes=Annotation(),
+        const std::string& xLabel="X",const std::string& yLabel="Y"
+    );
+    static std::string renderBarChart(
+        const std::vector<BarItem>& bars,int width=900,int height=560,
+        const std::string& title="Bar Chart",const Annotation& notes=Annotation(),
+        const std::string& xLabel="Category",const std::string& yLabel="Value"
+    );
+    static std::string renderBoxPlot(
+        const BoxSummary& box,int width=900,int height=560,
+        const std::string& title="Box Plot",const Annotation& notes=Annotation(),
+        const std::string& xLabel="Value"
+    );
+    static std::string renderHeatmap(
+        const Heatmap::Matrix& matrix,int width=900,int height=560,
+        const std::string& title="Heatmap",const Annotation& notes=Annotation(),
+        const std::string& xLabel="Column",const std::string& yLabel="Row"
+    );
+    static std::string renderPieChart(
+        const std::vector<PieSlice>& slices,int width=900,int height=560,
+        const std::string& title="Pie Chart",const Annotation& notes=Annotation()
+    );
 private:
     static std::string escapeXML(const std::string& text);
     static std::string svgStart(int width, int height);
