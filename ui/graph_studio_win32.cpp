@@ -179,7 +179,14 @@ void bestColumns(){
     EnableWindow(s.bins,type==0);
 }
 void loadCsv(const fs::path& filename){
-    auto rows=DataProcessor::cleanRows(DataLoader::loadCSV(filename.string()));
+    auto ext=filename.extension().string();
+    std::transform(ext.begin(),ext.end(),ext.begin(),
+        [](unsigned char c){return static_cast<char>(std::tolower(c));});
+    DataLoader::Table loaded;
+    if(ext==".json")loaded=DataLoader::loadJSON(filename.string());
+    else if(ext==".dvz")loaded=DataLoader::loadBinary(filename.string());
+    else loaded=DataLoader::loadCSV(filename.string());
+    auto rows=DataProcessor::cleanRows(loaded);
     if(rows.size()<2||rows.front().empty())
         throw std::runtime_error("CSV needs a header and at least one data row.");
     s.rows=std::move(rows);
@@ -210,7 +217,7 @@ void browse(){
     char path[MAX_PATH]={};
     OPENFILENAMEA d{};d.lStructSize=sizeof(d);d.hwndOwner=s.window;
     d.lpstrFile=path;d.nMaxFile=MAX_PATH;
-    d.lpstrFilter="CSV Files (*.csv)\0*.csv\0All Files (*.*)\0*.*\0\0";
+    d.lpstrFilter="Data Files (*.csv;*.json;*.dvz)\0*.csv;*.json;*.dvz\0All Files (*.*)\0*.*\0\0";
     d.Flags=OFN_FILEMUSTEXIST|OFN_PATHMUSTEXIST;
     if(GetOpenFileNameA(&d))loadCsv(path);
 }
