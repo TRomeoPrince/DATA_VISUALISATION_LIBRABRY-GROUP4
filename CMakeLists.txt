@@ -77,6 +77,14 @@ add_dataviz_test(test_raster_export)
 if(WIN32)
     add_executable(graph_studio WIN32 ui/graph_studio_win32.cpp)
     target_link_libraries(graph_studio PRIVATE dataviz user32 gdi32 comdlg32 shell32)
+    # Portable builds resolve CSV samples beside the executable, including in CTest.
+    add_custom_command(TARGET graph_studio POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory
+            "$<TARGET_FILE_DIR:graph_studio>/data/input"
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            "${CMAKE_CURRENT_SOURCE_DIR}/data/input"
+            "$<TARGET_FILE_DIR:graph_studio>/data/input"
+        VERBATIM)
     add_test(NAME test_graphstudio_selftest COMMAND graph_studio --self-test)
     if(DATAVIZ_PORTABLE_UI)
         target_compile_definitions(graph_studio PRIVATE DATAVIZ_PORTABLE_UI=1)
